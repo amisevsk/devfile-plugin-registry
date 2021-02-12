@@ -38,6 +38,8 @@ func ConvertMetaYamlToDevWorkspaceTemplate(meta *brokerModel.PluginMeta) (*devfi
 		}
 		component.Container.Endpoints = endpoints
 		dwt.Spec.Components = append(dwt.Spec.Components, getVolumeComponentsForVolumeMounts(component.Container.VolumeMounts)...)
+		appendRequiredEnvWorkaround(meta.Name, component.Container)
+		appendRequiredVolumeMounts(component.Container)
 	}
 	if len(meta.Spec.Extensions) > 0 {
 		var err error
@@ -81,7 +83,6 @@ func convertMetaToContainer(metaContainer brokerModel.Container) *devfile.Contai
 			// TODO: Update devfile/api dep to pull in ephemeral support
 		})
 	}
-
 	return container
 }
 
@@ -140,4 +141,25 @@ func getAnnotationsFromMeta(meta *brokerModel.PluginMeta) map[string]string {
 		"che.eclipse.org/plugin/type":         meta.Type,
 		"che.eclipse.org/plugin/description":  meta.Description,
 	}
+}
+
+func appendRequiredEnvWorkaround(metaName string, container *devfile.ContainerComponent) {
+	container.Env = append(container.Env, devfile.EnvVar{
+		Name:  "PLUGIN_REMOTE_ENDPOINT_EXECUTABLE",
+		Value: "/remote-endpoint/plugin-remote-endpoint",
+	}, devfile.EnvVar{
+		Name:  "THEIA_PLUGINS",
+		Value: fmt.Sprintf("local-dir:///plugins/sidecars/%s", metaName),
+	})
+}
+
+func appendRequiredVolumeMounts(container *devfile.ContainerComponent) {
+	// These volumes are provided by Theia
+	container.VolumeMounts = append(container.VolumeMounts, devfile.VolumeMount{
+		Name: "remote-endpoint",
+		Path: "/remote-endpoint",
+	}, devfile.VolumeMount{
+		Name: "plugins",
+		Path: "/plugins",
+	})
 }
