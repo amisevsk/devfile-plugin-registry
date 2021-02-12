@@ -36,5 +36,7 @@ RUN apk add --no-cache bash && \
     apk add --no-cache coreutils
 COPY --from=plugin-registry /usr/local/apache2/htdocs/.htaccess /usr/local/apache2/htdocs/.htaccess
 COPY --from=plugin-registry /build/v3 /usr/local/apache2/htdocs/v3
+RUN mkdir -p /usr/local/apache2/htdocs/v3/plugins/eclipse/che-theia/next
+COPY ["manual/theia-next.yaml", "/usr/local/apache2/htdocs/v3/plugins/eclipse/che-theia/next/devworkspacetemplate.yaml"]
 RUN echo "DirectoryIndex devworkspacetemplate.yaml" > /usr/local/apache2/htdocs/v3/plugins/.htaccess
 ENTRYPOINT ["httpd-foreground"]
