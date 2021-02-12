@@ -5,7 +5,7 @@ for meta in ${metas[@]}; do
   outputDir="${meta%/meta.yaml}"
   outputDir="${outputDir#/usr/local/apache2/htdocs/}"
   outputDir="/build/$outputDir"
-  echo "Converting $meta to ${outputDir}/devworkspacetemplate.yaml"
+  echo "Converting $meta to ${outputDir}/devfile.yaml"
   mkdir -p "$outputDir"
-  /plugin-convert --from $meta --to "$outputDir/devworkspacetemplate.yaml"
+  /plugin-convert --from $meta --to "$outputDir/devfile.yaml"
 done

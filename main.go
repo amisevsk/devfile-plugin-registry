@@ -10,7 +10,6 @@ import (
 	devfile "github.com/devfile/api/pkg/apis/workspaces/v1alpha2"
 	brokerModel "github.com/eclipse/che-plugin-broker/model"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/yaml"
@@ -39,12 +38,12 @@ func main() {
 		fmt.Printf("Error reading input file: %s\n", err)
 		os.Exit(1)
 	}
-	dwt, err := meta.ConvertMetaYamlToDevWorkspaceTemplate(pluginMeta)
+	devfile, err := meta.ConvertMetaYamlToDevfile(pluginMeta)
 	if err != nil {
 		fmt.Printf("Error converting plugin meta.yaml to DevWorkspaceTemplate: %s\n", err)
 		os.Exit(1)
 	}
-	err = writeDevWorkspaceTemplateToFile(dwt, outputPath)
+	err = writeDevfileToFile(devfile, outputPath)
 	if err != nil {
 		fmt.Printf("Error writing output file: %s\n", err)
 		os.Exit(1)
@@ -64,16 +63,14 @@ func readPluginMetaFromFile(path string) (*brokerModel.PluginMeta, error) {
 	return pluginMeta, nil
 }
 
-func writeDevWorkspaceTemplateToFile(dwt *devfile.DevWorkspaceTemplate, path string) error {
-	f, err := os.Create(path)
+func writeDevfileToFile(devfile *meta.Devfile, path string) error {
+	bytes, err := yaml.Marshal(devfile)
 	if err != nil {
-		return fmt.Errorf("failed to create output file: %s", err)
+		return fmt.Errorf("failed to serialize devfile: %w", err)
 	}
-	defer f.Close()
-	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme, json.SerializerOptions{true, false, false})
-	err = s.Encode(dwt, f)
+	err = ioutil.WriteFile(path, bytes, 0777)
 	if err != nil {
-		return fmt.Errorf("failed to serialize DevWorkspaceTemplate: %w", err)
+		return fmt.Errorf("failed to write to file: %w", err)
 	}
 	return nil
 }
