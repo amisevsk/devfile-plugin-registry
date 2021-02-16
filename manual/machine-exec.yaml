@@ -1,0 +1,44 @@
+schemaVersion: 2.0.0
+metadata:
+  attributes:
+    meta.yaml:
+      description: Che Plug-in with che-machine-exec service to provide creation terminal or tasks for Eclipse Che workspace containers.
+      displayName: Che machine-exec Service
+      id: eclipse/che-machine-exec-plugin/nightly
+      name: che-machine-exec-plugin
+      publisher: eclipse
+      title: Che machine-exec Service
+      type: Che Plugin
+      version: nightly
+  name: che-machine-exec-plugin
+  version: nightly
+components:
+- container:
+    command:
+    - /go/bin/che-machine-exec
+    args:
+    - '--url'
+    - '0.0.0.0:4444' # Since there is no JWT Proxy in DWO, we need to not listen on localhost only.
+    - '--pod-selector'
+    - controller.devfile.io/workspace_id=$(DEVWORKSPACE_ID)
+    endpoints:
+    - name: "che-mach-exec"
+      exposure: public
+      targetPort: 4444
+      protocol: ws
+      secure: true
+      attributes:
+        type: terminal    
+    env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins/sidecars/che-machine-exec-plugin
+    image: quay.io/eclipse/che-machine-exec:nightly
+    mountSources: true
+    volumeMounts:
+    - name: remote-endpoint
+      path: /remote-endpoint
+    - name: plugins
+      path: /plugins
+  name: che-machine-exec-plugin

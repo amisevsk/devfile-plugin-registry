@@ -36,7 +36,8 @@ RUN apk add --no-cache bash && \
     apk add --no-cache coreutils
 COPY --from=plugin-registry /usr/local/apache2/htdocs/.htaccess /usr/local/apache2/htdocs/.htaccess
 COPY --from=plugin-registry /build/v3 /usr/local/apache2/htdocs/v3
-RUN mkdir -p /usr/local/apache2/htdocs/v3/plugins/eclipse/che-theia/next
+RUN mkdir -p /usr/local/apache2/htdocs/v3/plugins/eclipse/che-theia/next /usr/local/apache2/htdocs/v3/plugins/eclipse/machine-exec/nightly
 COPY ["manual/theia-next.yaml", "/usr/local/apache2/htdocs/v3/plugins/eclipse/che-theia/next/devfile.yaml"]
+COPY ["manual/machine-exec.yaml", "/usr/local/apache2/htdocs/v3/plugins/eclipse/che-machine-exec-plugin/nightly/devfile.yaml"]
 RUN echo "DirectoryIndex devfile.yaml" > /usr/local/apache2/htdocs/v3/plugins/.htaccess
 ENTRYPOINT ["httpd-foreground"]
