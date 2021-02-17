@@ -2,6 +2,7 @@
 
 NAMESPACE=${NAMESPACE:-"devworkspace-plugins"}
 echo "Deploying plugin registry to the $NAMESPACE namespace"
+REGISTRY_IMAGE=${REGISTRY_IMAGE:-"docker.io/amisevsk/devworkspace-plugin-registry:dev"}
 
 if [ "$(kubectl api-resources --api-group='route.openshift.io' | grep -o routes)" == "routes" ]; then
   oc new-project $NAMESPACE || true
@@ -16,4 +17,5 @@ else
   fi
   envsubst < deploy/k8s/ingress.yaml | kubectl apply -n $NAMESPACE -f -
 fi
-kubectl apply -n $NAMESPACE -f deploy
+envsubst < deploy/deployment.yaml | kubectl apply -n ${NAMESPACE} -f -
+kubectl apply -n $NAMESPACE -f deploy/service.yaml

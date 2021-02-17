@@ -33,7 +33,7 @@ spec:
         app.kubernetes.io/part-of: devworkspace-operator
     spec:
       containers:
-      - image: docker.io/amisevsk/devworkspace-plugin-registry:dev
+      - image: ${REGISTRY_IMAGE}
         imagePullPolicy: Always
         name: devworkspace-plugin-registry
         ports:
